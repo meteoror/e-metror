@@ -55,6 +55,6 @@ async def on_message(message):
         elif(args == ['ping']):
             await message.channel.send("`m/ping`: Pings the bot.")
         else:
-            await message.channel.send("i no no wanna :,(")
+            await message.channel.send("A general purpose discord bot, coded by @metror. Code is available on github. \nCommands: \n`help`: Help menu. \n`mirror`: Mirrors text. \n`ping`: Pings the bot.")
 
 client.run(TOKEN)
