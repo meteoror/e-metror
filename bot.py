@@ -37,6 +37,9 @@ async def on_message(message):
     args = message.content[len(prefix):].split()
     command = args.pop(0).lower()
 
+    if(command == 'ping'):
+        await message.channel.send("Pong!")
+    
     if(command == 'mirror'):
         if(args == []):
             await message.channel.send("Send a message for me to mirror!")
@@ -45,5 +48,13 @@ async def on_message(message):
             for i in args:
                 final = final + i + " "
             await message.channel.send(final)
+
+    if(command == 'help'):
+        if(args == ['mirror']):
+            await message.channel.send("`m/mirror [content]`: The bot mirrors whatever [content] you sent to it!")
+        elif(args == ['ping']):
+            await message.channel.send("`m/ping`: Pings the bot.")
+        else:
+            await message.channel.send("i no no wanna :,(")
 
 client.run(TOKEN)
