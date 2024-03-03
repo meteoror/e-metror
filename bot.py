@@ -59,8 +59,10 @@ async def on_message(message):
                 await message.channel.send("`m/mirror [content]`: The bot mirrors whatever [content] you sent to it!")
             elif args == ['ping']:
                 await message.channel.send("`m/ping`: Pings the bot.")
+            elif args == ['translate']:
+                await message.channel.send("`m/translate [content]`: Translates [content] into english. Other languages coming soon.")
             else:
-                await message.channel.send("A general purpose discord bot, coded by @metror. Code is available on github. \nCommands: \n`help`: Help menu. \n`mirror`: Mirrors text. \n`ping`: Pings the bot.")
+                await message.channel.send("A general purpose discord bot, coded by @metror. Code is available on github. \nCommands: \n`help`: Help menu. \n`mirror`: Mirrors text. \n`ping`: Pings the bot. \n`translate`: Translates text.")
 
 
 client.run(TOKEN)
