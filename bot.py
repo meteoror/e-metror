@@ -7,7 +7,7 @@ import os
 import discord
 from discord import app_commands
 from dotenv import load_dotenv
-import googletrans
+import translators as ts
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -30,31 +30,37 @@ async def on_member_join(member):
 '''
 
 @client.event
+@client.event
 async def on_message(message):
-    if(message.content[0:2] != prefix or message.author == client.user):
-        return
-    
-    args = message.content[len(prefix):].split()
-    command = args.pop(0).lower()
+    if message.content.startswith(prefix) and message.author != client.user:
 
-    if(command == 'ping'):
-        await message.channel.send("Pong!")
-    
-    if(command == 'mirror'):
-        if(args == []):
-            await message.channel.send("Send a message for me to mirror!")
-        else:
-            final = ''
-            for i in args:
-                final = final + i + " "
-            await message.channel.send(final)
+        args = message.content[len(prefix):].split()
+        command = args.pop(0).lower()
+        messageContent = ' '.join(args)  # Joining the arguments into a single string
 
-    if(command == 'help'):
-        if(args == ['mirror']):
-            await message.channel.send("`m/mirror [content]`: The bot mirrors whatever [content] you sent to it!")
-        elif(args == ['ping']):
-            await message.channel.send("`m/ping`: Pings the bot.")
-        else:
-            await message.channel.send("A general purpose discord bot, coded by @metror. Code is available on github. \nCommands: \n`help`: Help menu. \n`mirror`: Mirrors text. \n`ping`: Pings the bot.")
+        if command == 'translate':
+            if not messageContent:
+                await message.channel.send("Send something for me to translate!")
+            else:
+                final = ts.translate_text(messageContent, translator='google', to_language='en')
+                await message.channel.send(final)
+        
+        if command == 'ping':
+            await message.channel.send("Pong!")
+        
+        if command == 'mirror':
+            if not messageContent:
+                await message.channel.send("Send a message for me to mirror!")
+            else:
+                await message.channel.send(messageContent)
+
+        if command == 'help':
+            if args == ['mirror']:
+                await message.channel.send("`m/mirror [content]`: The bot mirrors whatever [content] you sent to it!")
+            elif args == ['ping']:
+                await message.channel.send("`m/ping`: Pings the bot.")
+            else:
+                await message.channel.send("A general purpose discord bot, coded by @metror. Code is available on github. \nCommands: \n`help`: Help menu. \n`mirror`: Mirrors text. \n`ping`: Pings the bot.")
+
 
 client.run(TOKEN)
