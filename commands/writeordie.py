@@ -1,4 +1,3 @@
-import time
 import discord
 import json
 
@@ -11,7 +10,7 @@ class Response:
         votes = 0
 
 class Game:
-    def __init__(self, started, host, story, players, plist, responses):
+    def __init__(self, started = False, host = '', story = '', players = 0, plist = [], responses = []):
         started = False
         host = ''
         story = ''
@@ -35,19 +34,29 @@ async def load_game_state():
     except FileNotFoundError:
         return None
 
+import os
+
+async def end_game():
+    try:
+        os.remove("game_state.json")
+        return True
+    except FileNotFoundError:
+        return False
+
 async def MAIN(message, args):
     messender = message.author.display_name
     messageContent = ' '.join(args[1:])
-    current = load_game_state()  # Load the game state from the file
+    current = await load_game_state()  # Load the game state from the file
     game = []
     command = args[0].lower()
 
     if command == 'start':
         if current is None or not current.started:
+            await message.author.send("You are now hosting the game.")
             current = Game()
             current.started = True
             current.host = messender
-            save_game_state(current)  # Save the game state after modification
+            await save_game_state(current)  # Save the game state after modification
         else:
             await message.channel.send(f"{current.host} is already hosting a Write or Die game!")
 
@@ -55,7 +64,7 @@ async def MAIN(message, args):
         if current is not None:
             current.players += 1
             current.plist.append(messender)
-            save_game_state(current)  # Save the game state after modification
+            await save_game_state(current)  # Save the game state after modification
             await message.channel.send(f"{messender} has joined the Write or Die! There are now {current.players} participants.")
         else:
             await message.channel.send("No game currently active. Start a game first.")
@@ -74,6 +83,12 @@ async def MAIN(message, args):
         else:
             await message.channel.send("No game currently active. Start a game first.")
 
+    if command == 'end':
+        success = await end_game()
+        if success:
+            await message.channel.send("The game has ended.")
+        else:
+            await message.channel.send("No game currently active.")
 
 def HELP(PREFIX):
     return {
