@@ -19,6 +19,7 @@ async def MAIN(message, args):
         )
         embed.set_author(name=message.author.display_name, icon_url=message.author.avatar.url)
         await message.author.send(embed=embed)
+        # addedthistotestsoemthing
 
 def HELP(PREFIX):
     return {
