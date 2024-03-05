@@ -4,14 +4,14 @@ import commands.mirror as mirror
 import commands.translate as translate
 import commands.ping as ping
 import commands.dicegame as dicegame
-## import commands.mmmm as mmmm
+import commands.mmmm as mmmm
 
 COMMANDS = {
     "mirror": mirror.HELP,
     "translate": translate.HELP,
     "ping": ping.HELP,
     "dicegame": dicegame.HELP,
-    ## "mmmm": mmmm.HELP
+    "mmmm": mmmm.HELP
 }
 
 

@@ -2,7 +2,7 @@ import os
 import discord
 from dotenv import load_dotenv
 
-from commands import translate, ping, mirror, dicegame, help
+from commands import translate, ping, mirror, dicegame, mmmm, help
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -26,10 +26,11 @@ async def on_message(message):
         elif command == 'ping':
             await ping.MAIN(message)
         elif command == 'mirror':
-            print("Running Mirror")
             await mirror.MAIN(message, args)
         elif command == 'dicegame':
             await dicegame.MAIN(message, args)
+        elif command == 'mmmm':
+            await mmmm.MAIN(message, args)
         elif command == 'help':
             await help.MAIN(message, args)
 
