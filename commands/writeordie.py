@@ -1,22 +1,20 @@
 import discord
 import json
 
-#TODO: Bug test. You need to make the game a global variable!!!
-
 class Response:
-    def __init__(self, author, content, votes):
-        author = ''
-        content = ''
-        votes = 0
+    def __init__(self, author = '', content = '', votes = 0):
+        self.author = author
+        self.content = content
+        self.votes = votes
 
 class Game:
     def __init__(self, started = False, host = '', story = '', players = 0, plist = [], responses = []):
-        started = False
-        host = ''
-        story = ''
-        players = 0
-        plist = []
-        responses = []
+        self.started = started
+        self.host = host
+        self.story = story
+        self.players = players
+        self.plist = plist
+        self.responses = responses
 
 # Function to save the game state to a file
 async def save_game_state(current_game):
@@ -53,9 +51,7 @@ async def MAIN(message, args):
     if command == 'start':
         if current is None or not current.started:
             await message.author.send("You are now hosting the game.")
-            current = Game()
-            current.started = True
-            current.host = messender
+            current = Game(True, messender, '', 0, [], [])
             await save_game_state(current)  # Save the game state after modification
         else:
             await message.channel.send(f"{current.host} is already hosting a Write or Die game!")
@@ -80,8 +76,15 @@ async def MAIN(message, args):
                 await message.author.send("You can only respond if a game has started!")
             elif not isplaying:
                 await message.author.send("You can only respond if you are playing!")
-        else:
-            await message.channel.send("No game currently active. Start a game first.")
+
+        if isplaying:
+            if not messageContent:
+                await message.author.send("Please enter a response!")
+            else:
+                playerResponse = Response(messender, messageContent, 0)
+                current.responses.append([playerResponse.author, playerResponse.content, playerResponse.votes])
+                await message.author.send(f"Your response has been logged as `{messageContent}`.")
+                await save_game_state(current)
 
     if command == 'end':
         success = await end_game()
