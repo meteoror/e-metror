@@ -2,26 +2,25 @@ import discord
 import json
 
 class Response:
-    def __init__(self, author = '', content = '', votes = 0):
+    def __init__(self, author='', content='', votes=0):
         self.author = author
         self.content = content
         self.votes = votes
 
 class Game:
-    def __init__(self, started = False, host = '', story = '', players = 0, plist = [], responses = []):
+    def __init__(self, started=False, host='', hostid=0, story='', players=0, plist=[], responses=[]):
         self.started = started
         self.host = host
+        self.hostid = hostid
         self.story = story
         self.players = players
         self.plist = plist
         self.responses = responses
 
-# Function to save the game state to a file
 async def save_game_state(current_game):
     with open("game_state.json", "w") as file:
         json.dump(current_game.__dict__, file)
 
-# Function to load the game state from a file
 async def load_game_state():
     try:
         with open("game_state.json", "r") as file:
@@ -41,18 +40,26 @@ async def end_game():
     except FileNotFoundError:
         return False
 
-async def MAIN(message, args):
+async def send_dm(user_id, message_content, client):
+    try:
+        user = await client.fetch_user(user_id)
+        await user.send(message_content)
+    except discord.errors.HTTPException as e:
+        print(f"Failed to send DM to user with ID {user_id}: {e}")
+
+async def MAIN(message, args, client):
     messender = message.author.display_name
+    messenderid = message.author.id
     messageContent = ' '.join(args[1:])
-    current = await load_game_state()  # Load the game state from the file
+    current = await load_game_state()
     game = []
     command = args[0].lower()
 
     if command == 'start':
         if current is None or not current.started:
             await message.author.send("You are now hosting the game.")
-            current = Game(True, messender, '', 0, [], [])
-            await save_game_state(current)  # Save the game state after modification
+            current = Game(True, messender, messenderid, '', 0, [], [])
+            await save_game_state(current)
         else:
             await message.channel.send(f"{current.host} is already hosting a Write or Die game!")
 
@@ -60,7 +67,7 @@ async def MAIN(message, args):
         if current is not None:
             current.players += 1
             current.plist.append(messender)
-            await save_game_state(current)  # Save the game state after modification
+            await save_game_state(current)
             await message.channel.send(f"{messender} has joined the Write or Die! There are now {current.players} participants.")
         else:
             await message.channel.send("No game currently active. Start a game first.")
@@ -84,7 +91,9 @@ async def MAIN(message, args):
                 playerResponse = Response(messender, messageContent, 0)
                 current.responses.append([playerResponse.author, playerResponse.content, playerResponse.votes])
                 await message.author.send(f"Your response has been logged as `{messageContent}`.")
-                await save_game_state(current)
+                # Send a message to the host
+                host_id = current.hostid  # Replace this with the actual attribute that stores the host's ID
+                await send_dm(host_id, f"{messender} has responded to the game: `{messageContent}`", client)
 
     if command == 'end':
         success = await end_game()

@@ -32,7 +32,7 @@ async def on_message(message):
         elif command == 'mmmm':
             await mmmm.MAIN(message, args)
         elif command == 'write':
-            await writeordie.MAIN(message, args)
+            await writeordie.MAIN(message, args, client)
         elif command == 'help':
             await help.MAIN(message, args)
 
