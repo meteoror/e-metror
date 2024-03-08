@@ -89,14 +89,22 @@ async def MAIN(message, args, client):
             await message.channel.send(f"{current.host} is already hosting a Write or Die game!")
 
     if command == 'join':
-        if current is not None:
-            current.players += 1
-            current.plist.append(messender)
-            current.playerid.append(messenderid)
-            await save_game_state(current)
-            await message.channel.send(f"{messender} has joined the Write or Die! There are now {current.players} participants.")
+        alreadyJoined = False
+        for i in current.plist:
+            if i == messender:
+                alreadyJoined = True
+        
+        if alreadyJoined == False:
+            if current is not None:
+                current.players += 1
+                current.plist.append(messender)
+                current.playerid.append(messenderid)
+                await save_game_state(current)
+                await message.channel.send(f"{messender} has joined the Write or Die! There are now {current.players} participants.")
+            else:
+                await message.channel.send("No game currently active. Start a game first.")
         else:
-            await message.channel.send("No game currently active. Start a game first.")
+            await message.channel.send("You have already joined the game!")
 
     if command == 'openresponding':
         if current is not None and messenderid == current.hostid and current.responding is False:
@@ -149,8 +157,8 @@ async def MAIN(message, args, client):
 
             board = await generateBoard(current.responses, False)
             for i in current.playerid:
-                send_dm(i, board, client)
-            send_dm(current.host_id, "Voting has been sent out!", client)
+                await send_dm(i, board, client)
+            await send_dm(current.hostid, "Voting has been sent out!", client)
 
             await save_game_state(current)
 
@@ -173,11 +181,14 @@ async def MAIN(message, args, client):
             await message.author.send("You can only vote if a game has started!")
 
     if command == 'end':
-        success = await end_game()
-        if success:
-            await message.channel.send("The game has ended.")
+        if messenderid == current.hostid:
+            success = await end_game()
+            if success:
+                await message.channel.send("The game has ended.")
+            else:
+                await message.channel.send("No game currently active.")
         else:
-            await message.channel.send("No game currently active.")
+            await message.channel.send("You can only end the game if you are a host!")
 
 def HELP(PREFIX):
     return {
